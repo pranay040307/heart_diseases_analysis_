@@ -1,0 +1,303 @@
+---
+title: "Heart Disease Patient Data Analysis"
+author: "Your Name"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# 1. Introduction
+
+Heart disease is one of the leading causes of death worldwide, and identifying
+patterns in patient health data can help in early detection and prevention.
+
+This project analyzes the Heart Disease dataset (originally from the UCI
+Machine Learning Repository and widely used on Kaggle as the "Heart Disease
+UCI" dataset) using R programming. The analysis focuses on patient
+characteristics such as chest pain type, thalassemia test results, cholesterol
+levels, and heart disease diagnosis outcomes.
+
+The project uses statistical analysis and data visualization to identify
+important patterns and trends related to heart disease in the dataset.
+
+# 2. Objectives
+
+The main objectives of this project are:
+
+To analyze patient records related to heart disease.
+To study cholesterol level distributions.
+To identify common chest pain types among patients.
+To analyze the distribution of thalassemia test results among patients.
+To examine the relationship between age and maximum heart rate.
+To visualize important patterns using graphs.
+To interpret the results and present meaningful findings.
+
+# 3. Data Importing
+
+```{r}
+heart_data <- read.csv("heart_disease_dataset.csv")
+
+head(heart_data)
+```
+
+# 4. Understanding the Dataset
+
+```{r}
+str(heart_data)
+
+summary(heart_data)
+```
+
+# 5. Checking Missing Values
+
+```{r}
+colSums(is.na(heart_data))
+```
+
+# 6. Data Cleaning
+
+The dataset uses numeric codes for some categorical variables. These are
+converted into readable labels to make the analysis and charts easier to
+interpret.
+
+```{r}
+heart_data$cp_label <- factor(
+  heart_data$cp,
+  levels = c(1, 2, 3, 4),
+  labels = c("Typical Angina", "Atypical Angina",
+             "Non-Anginal Pain", "Asymptomatic")
+)
+
+heart_data$sex_label <- factor(
+  heart_data$sex,
+  levels = c(0, 1),
+  labels = c("Female", "Male")
+)
+
+heart_data$target_label <- factor(
+  heart_data$target,
+  levels = c(0, 1),
+  labels = c("No Disease", "Disease Present")
+)
+
+head(
+  heart_data[, c("cp_label", "sex_label", "target_label")]
+)
+```
+
+>The dataset contains no missing values, so no rows needed to be removed
+during cleaning.
+
+# 7. Cholesterol Analysis
+
+>Cholesterol statistics are calculated using the cholesterol level (mg/dl)
+reported for each patient.
+
+```{r}
+mean(heart_data$chol, na.rm = TRUE)
+```
+```{r}
+median(heart_data$chol, na.rm = TRUE)
+```
+```{r}
+var(heart_data$chol, na.rm = TRUE)
+```
+```{r}
+sd(heart_data$chol, na.rm = TRUE)
+```
+
+# Interpretation
+
+The mean represents the average cholesterol level across all patients in the
+dataset, while the median represents the middle cholesterol value. The
+difference between the mean and median indicates that the cholesterol
+distribution is affected by a few unusually high observations.
+
+# 8. Chest Pain Type Analysis
+
+```{r}
+cp_count <- table(heart_data$cp_label)
+
+sort(cp_count, decreasing = TRUE)
+```
+
+# 9. Chest Pain Type Visualization
+
+```{r}
+barplot(
+  sort(cp_count, decreasing = TRUE),
+  main = "Chest Pain Type Frequency",
+  xlab = "Chest Pain Type",
+  ylab = "Number of Patients",
+  las = 2
+)
+```
+
+# Interpretation
+
+The bar chart shows the number of patients reporting each chest pain type.
+Asymptomatic chest pain is the most frequently recorded type in the dataset,
+followed by non-anginal pain, atypical angina and typical angina. This helps
+identify which chest pain presentations are most common among the patients
+in this dataset.
+
+# 10. Thalassemia Test Result Analysis
+
+```{r}
+thal_count <- table(heart_data$thal)
+
+thal_count
+```
+```{r}
+barplot(
+  thal_count,
+  main = "Thalassemia Test Result Distribution",
+  xlab = "Thalassemia Result",
+  ylab = "Number of Patients",
+  las = 2
+)
+```
+
+# Interpretation
+
+The bar chart shows the distribution of thalassemia test results across the
+patients in the dataset. A "normal" result is the most common outcome,
+followed by "reversible" and "fixed" defects. This shows that most patients
+in the dataset returned a normal thalassemia test result.
+
+# 11. Heart Disease Diagnosis Analysis
+
+```{r}
+target_count <- table(heart_data$target_label)
+
+target_count
+```
+```{r}
+pie(
+  target_count,
+  main = "Heart Disease Presence vs Absence",
+  labels = paste(names(target_count), target_count)
+)
+```
+
+# Interpretation
+
+The pie chart compares patients diagnosed with heart disease against those
+without it. Out of the total patients in the dataset, a smaller portion is
+identified as having heart disease, while the larger portion does not have
+the condition.
+
+# 12. Cholesterol Distribution
+
+```{r}
+hist(
+  heart_data$chol,
+  main = "Cholesterol Level Distribution",
+  xlab = "Cholesterol (mg/dl)",
+  ylab = "Frequency"
+)
+```
+
+# Interpretation
+
+The histogram shows the distribution of cholesterol levels reported for the
+patients. Most observations are concentrated in a moderate cholesterol range,
+while a small number of patients have considerably higher cholesterol values.
+This indicates that the cholesterol distribution is right-skewed and contains
+some high-value observations.
+
+# 13. Age vs Maximum Heart Rate Analysis
+
+```{r}
+plot(
+  heart_data$age,
+  heart_data$thalach,
+  main = "Age vs Maximum Heart Rate Achieved",
+  xlab = "Age",
+  ylab = "Maximum Heart Rate (thalach)",
+  pch = 19
+)
+```
+
+# Interpretation
+
+The scatter plot shows the relationship between a patient's age and the
+maximum heart rate achieved during testing. The points show a general
+downward pattern, indicating that older patients tend to achieve a lower
+maximum heart rate than younger patients.
+
+# 14. Correlation Analysis
+
+```{r}
+cor(
+  heart_data$age,
+  heart_data$thalach,
+  use = "complete.obs"
+)
+```
+
+# Interpretation
+
+The correlation coefficient between age and maximum heart rate is
+approximately -0.41. This indicates a moderate negative relationship between
+the two variables.
+
+This means that as a patient's age increases, their maximum heart rate tends
+to decrease. However, correlation does not imply causation.
+
+# 15. Findings
+
+Based on the analysis of the Heart Disease dataset, the following findings
+were obtained:
+
+1) The dataset contains patient records with no missing values across any
+of the 14 variables.
+
+2) Asymptomatic chest pain is the most frequently reported chest pain type
+among patients, followed by non-anginal pain, atypical angina and typical
+angina.
+
+3) A "normal" thalassemia test result is the most common outcome among
+patients, followed by "reversible" and "fixed" defects.
+
+4) A smaller portion of patients in the dataset are diagnosed with heart
+disease compared with those who are not.
+
+5) The cholesterol distribution shows that most patients have moderate
+cholesterol levels, with a small number of unusually high observations.
+
+6) The correlation coefficient between age and maximum heart rate is
+approximately -0.41, indicating a moderate negative relationship between
+the two variables.
+
+7) The visualizations provide useful insights into chest pain types,
+thalassemia results and cholesterol patterns among heart disease patients.
+
+# 16. Conclusion
+
+This project analyzed a real-world Heart Disease dataset using R programming.
+
+The analysis included data importing, data exploration, missing-value
+analysis, data cleaning, statistical analysis and data visualization.
+
+The study examined chest pain types, thalassemia test results, cholesterol
+levels and the relationship between age and maximum heart rate among
+patients. It also compared the presence and absence of heart disease across
+the dataset.
+
+The correlation analysis showed a moderate negative relationship between age
+and maximum heart rate, with a correlation coefficient of approximately
+-0.41.
+
+Overall, this project demonstrates how R can be used to analyze real-world
+health data and convert it into meaningful statistical insights and
+visualization.
+
+# 17. References
+
+Heart Disease Dataset (UCI Machine Learning Repository / Kaggle)
+R Programming Documentation
+R Markdown Documentation
